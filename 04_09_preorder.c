@@ -16,15 +16,30 @@ struct Node* newNode(int data) {
     return node;
 }
 
-// Recursive Preorder Traversal
+// Preorder traversal without recursion
 void preorder(struct Node* root) {
     if (root == NULL) return;
 
-    printf("%d ", root->data);   // Visit root
-    preorder(root->left);        // Traverse left
-    preorder(root->right);       // Traverse right
-}
+    // Stack implemented as array of node pointers
+    struct Node* stack[100];
+    int top = -1;
 
+    // Push root
+    stack[++top] = root;
+
+    while (top != -1) {
+        // Pop and print
+        struct Node* curr = stack[top--];
+        printf("%d ", curr->data);
+
+        // Push right first (so left is processed first)
+        if (curr->right != NULL)
+            stack[++top] = curr->right;
+
+        if (curr->left != NULL)
+            stack[++top] = curr->left;
+    }
+}
 int main() {
     
     struct Node* root = newNode(1);
