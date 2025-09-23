@@ -1,69 +1,51 @@
 #include <stdio.h>
-#include <limits.h>
+#define V 4
+#define INF 99999  // a large number to represent infinity
 
-#define V 5   // number of vertices
-#define E 8   // number of edges
+// Floyd–Warshall Algorithm
+void floydWarshall(int graph[V][V]) {
+    int dist[V][V];
 
-// structure to represent an edge
-struct Edge {
-    int src, dest, weight;
-};
+    // Initialize distance matrix as given graph
+    int i,j,k;
+    for ( i = 0; i < V; i++) {
+        for ( j = 0; j < V; j++) {
+            dist[i][j] = graph[i][j];
+        }
+    }
 
-// Bellman-Ford Algorithm
-void BellmanFord(struct Edge edges[], int src) {
-    int dist[V];
-
-    // Step 1: Initialize distances
-    int i,j;
-    for ( i = 0; i < V; i++)
-        dist[i] = INT_MAX;
-    dist[src] = 0;
-
-    // Step 2: Relax all edges (V-1 times)
-    for ( i = 1; i <= V - 1; i++) {
-        for ( j = 0; j < E; j++) {
-            int u = edges[j].src;
-            int v = edges[j].dest;
-            int w = edges[j].weight;
-
-            if (dist[u] != INT_MAX && dist[u] + w < dist[v]) {
-                dist[v] = dist[u] + w;
+    // Dynamic Programming: update distances
+    for ( k = 0; k < V; k++) {
+        for ( i = 0; i < V; i++) {
+            for ( j = 0; j < V; j++) {
+                if (dist[i][k] + dist[k][j] < dist[i][j]) {
+                    dist[i][j] = dist[i][k] + dist[k][j];
+                }
             }
         }
     }
 
-    // Step 3: Check for negative weight cycle
-    for ( j = 0; j < E; j++) {
-        int u = edges[j].src;
-        int v = edges[j].dest;
-        int w = edges[j].weight;
-
-        if (dist[u] != INT_MAX && dist[u] + w < dist[v]) {
-            printf("Graph contains negative weight cycle!\n");
-            return;
-        }
-    }
-
-    // Print result
-    printf("Vertex Distance from Source %d:\n", src);
+    // Print shortest distance matrix
+    printf("Shortest distances between every pair of vertices:\n");
     for ( i = 0; i < V; i++) {
-        if (dist[i] == INT_MAX)
-            printf("%d \t INF\n", i);
-        else
-            printf("%d \t %d\n", i, dist[i]);
+        for ( j = 0; j < V; j++) {
+            if (dist[i][j] == INF)
+                printf("%7s", "INF");
+            else
+                printf("%7d", dist[i][j]);
+        }
+        printf("\n");
     }
 }
 
-// Driver code
 int main() {
-    struct Edge edges[E] = {
-        {0, 1, -1}, {0, 2, 4}, 
-        {1, 2, 3}, {1, 3, 2}, 
-        {1, 4, 2}, {3, 2, 5}, 
-        {3, 1, 1}, {4, 3, -3}
+    int graph[V][V] = {
+        {0,   5,  INF, 10},
+        {INF, 0,   3,  INF},
+        {INF, INF, 0,   1},
+        {INF, INF, INF, 0}
     };
 
-    BellmanFord(edges, 0); // source = 0
-
+    floydWarshall(graph);
     return 0;
 }
